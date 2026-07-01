@@ -1,35 +1,44 @@
 package com.coworking.api_gestaocoworking.model;
 
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import java.util.Objects;
 
 @Entity
-@Table(name = "tb_espaco")
+@Table(name = "tb_espacos") // Padronizado no plural para acompanhar tb_usuarios e tb_filiais
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Espaco {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String nome;
 
     @Column(nullable = false)
     private Integer capacidade;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "filial_id", nullable = false)
-    @JsonIgnore
     private Filial filial;
 
-    public Espaco() {}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Espaco espaco = (Espaco) o;
+        return Objects.equals(id, espaco.id);
+    }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getNome() { return nome; }
-    public void setNome(String nome) { this.nome = nome; }
-    public Integer getCapacidade() { return capacidade; }
-    public void setCapacidade(Integer capacidade) { this.capacidade = capacidade; }
-    public Filial getFilial() { return filial; }
-    public void setFilial(Filial filial) { this.filial = filial; }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

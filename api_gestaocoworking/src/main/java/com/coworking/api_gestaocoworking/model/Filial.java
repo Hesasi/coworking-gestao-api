@@ -1,33 +1,43 @@
 package com.coworking.api_gestaocoworking.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
-@Table(name = "tb_filial")
+@Table(name = "tb_filiais")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Filial {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 150)
     private String nome;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String endereco;
 
     @OneToMany(mappedBy = "filial", cascade = CascadeType.ALL)
     private List<Espaco> espacos;
 
-    public Filial() {}
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getNome() { return nome; }
-    public void setNome(String nome) { this.nome = nome; }
-    public String getEndereco() { return endereco; }
-    public void setEndereco(String endereco) { this.endereco = endereco; }
-    public List<Espaco> getEspacos() { return espacos; }
-    public void setEspacos(List<Espaco> espacos) { this.espacos = espacos; }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Filial filial = (Filial) o;
+        return Objects.equals(id, filial.id);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

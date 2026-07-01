@@ -1,57 +1,45 @@
 package com.coworking.api_gestaocoworking.controller;
 
-import com.coworking.api_gestaocoworking.model.Filial;
-import com.coworking.api_gestaocoworking.repository.FilialRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.coworking.api_gestaocoworking.dto.FilialFormDTO;
+import com.coworking.api_gestaocoworking.dto.FilialResponseDTO;
+import com.coworking.api_gestaocoworking.service.FilialService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/filiais")
+@RequiredArgsConstructor
 public class FilialController {
 
-    @Autowired
-    private FilialRepository repository;
+    private final FilialService service;
 
     @GetMapping
-    public List<Filial> listar() {
-        return repository.findAll();
+    public ResponseEntity<List<FilialResponseDTO>> listar() {
+        return ResponseEntity.ok(service.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Filial> buscarPorId(@PathVariable Long id) {
-        return repository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new IllegalArgumentException("Filial não encontrada com o ID: " + id));
+    public ResponseEntity<FilialResponseDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.buscarPorId(id));
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Filial criar(@RequestBody Filial filial) {
-        return repository.save(filial);
+    public ResponseEntity<FilialResponseDTO> criar(@RequestBody @Valid FilialFormDTO form) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(form));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Filial> atualizar(@PathVariable Long id, @RequestBody Filial filialAtualizada) {
-        return repository.findById(id)
-                .map(filial -> {
-                    filial.setNome(filialAtualizada.getNome());
-                    filial.setEndereco(filialAtualizada.getEndereco());
-                    return ResponseEntity.ok(repository.save(filial));
-                })
-                .orElseThrow(() -> new IllegalArgumentException("Filial não encontrada com o ID: " + id));
+    public ResponseEntity<FilialResponseDTO> atualizar(@PathVariable Long id, @RequestBody @Valid FilialFormDTO form) {
+        return ResponseEntity.ok(service.atualizar(id, form));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        return repository.findById(id)
-                .map(filial -> {
-                    repository.delete(filial);
-                    return ResponseEntity.noContent().<Void>build();
-                })
-                .orElseThrow(() -> new IllegalArgumentException("Filial não encontrada com o ID: " + id));
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }

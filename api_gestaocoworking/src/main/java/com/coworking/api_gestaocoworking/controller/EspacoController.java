@@ -1,46 +1,35 @@
 package com.coworking.api_gestaocoworking.controller;
 
-import com.coworking.api_gestaocoworking.model.Espaco;
-import com.coworking.api_gestaocoworking.repository.EspacoRepository;
-import com.coworking.api_gestaocoworking.repository.FilialRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.coworking.api_gestaocoworking.dto.EspacoFormDTO;
+import com.coworking.api_gestaocoworking.dto.EspacoResponseDTO;
+import com.coworking.api_gestaocoworking.service.EspacoService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/espacos")
+@RequiredArgsConstructor
 public class EspacoController {
 
-    @Autowired
-    private EspacoRepository espacoRepository;
-
-    @Autowired
-    private FilialRepository filialRepository;
+    private final EspacoService service;
 
     @GetMapping
-    public List<Espaco> listar() {
-        return espacoRepository.findAll();
+    public ResponseEntity<List<EspacoResponseDTO>> listar() {
+        return ResponseEntity.ok(service.listar());
     }
 
     @PostMapping("/filial/{filialId}")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Espaco criar(@PathVariable Long filialId, @RequestBody Espaco espaco) {
-        return filialRepository.findById(filialId).map(filial -> {
-            espaco.setFilial(filial);
-            return espacoRepository.save(espaco);
-        }).orElseThrow(() -> new IllegalArgumentException("Filial não encontrada."));
+    public ResponseEntity<EspacoResponseDTO> criar(@PathVariable Long filialId, @RequestBody @Valid EspacoFormDTO form) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(filialId, form));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        return espacoRepository.findById(id)
-                .map(espaco -> {
-                    espacoRepository.delete(espaco);
-                    return ResponseEntity.noContent().<Void>build();
-                })
-                .orElseThrow(() -> new IllegalArgumentException("Espaço não encontrado com o ID: " + id));
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }
