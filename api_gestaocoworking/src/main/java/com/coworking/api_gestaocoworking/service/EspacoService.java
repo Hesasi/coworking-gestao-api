@@ -20,15 +20,21 @@ public class EspacoService {
 
     @Transactional(readOnly = true)
     public List<EspacoResponseDTO> listar() {
-        return espacoRepository.findAll().stream()
+        return espacoRepository.findAllComFilial().stream()
                 .map(EspacoResponseDTO::new)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Espaco buscarEntidadePura(Long id) {
+        return espacoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Espaço não encontrado com o ID: " + id));
     }
 
     @Transactional
     public EspacoResponseDTO criar(Long filialId, EspacoFormDTO form) {
         Filial filial = filialService.buscarEntidadePura(filialId);
-        Espaco espaco = new Espaco(null, form.nome(), form.capacidade(), filial);
+        Espaco espaco = new Espaco(null, form.nome(), form.capacidade(), form.tipo(), form.valorHora(), filial);
         return new EspacoResponseDTO(espacoRepository.save(espaco));
     }
 
