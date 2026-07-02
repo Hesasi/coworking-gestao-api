@@ -39,7 +39,6 @@ public class Endereco {
     @Column(nullable = false, length = 8)
     private String cep;
 
-    // Equals e HashCode baseados estritamente na chave primária para estabilidade do JPA
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

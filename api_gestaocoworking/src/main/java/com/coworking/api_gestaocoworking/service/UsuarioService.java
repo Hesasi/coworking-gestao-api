@@ -19,13 +19,9 @@ public class UsuarioService {
 
     @Transactional
     public UsuarioResponseDTO cadastrar(UsuarioFormDTO form) {
-
-        // Regra de Negócio: Impede e-mails duplicados
         if (usuarioRepository.findByEmail(form.email()).isPresent()) {
             throw new IllegalArgumentException("Este e-mail já está cadastrado no sistema.");
         }
-
-        // Mapeamento manual dos dados do formulário para as Entidades do Banco
         Endereco endereco = new Endereco();
         endereco.setLogradouro(form.endereco().logradouro());
         endereco.setNumero(form.endereco().numero());
@@ -34,17 +30,12 @@ public class UsuarioService {
         endereco.setCidade(form.endereco().city());
         endereco.setUf(form.endereco().uf());
         endereco.setCep(form.endereco().cep());
-
         Usuario usuario = new Usuario();
         usuario.setNome(form.nome());
         usuario.setEmail(form.email());
-        // Criptografa a senha antes de persistir no banco de dados
         usuario.setSenha(passwordEncoder.encode(form.senha()));
         usuario.setEndereco(endereco);
-
         usuarioRepository.save(usuario);
-
-        // Retorna o DTO de saída seguro (sem expor a senha ou dados internos desnecessários)
         return new UsuarioResponseDTO(usuario);
     }
 }

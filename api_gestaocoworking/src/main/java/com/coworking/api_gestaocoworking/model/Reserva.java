@@ -7,43 +7,48 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "tb_espacos")
+@Table(name = "tb_reservas")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Espaco {
+public class Reserva {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String nome;
-
-    @Column(nullable = false)
-    private Integer capacidade;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
-    private TipoEspaco tipo;
-
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal valorHora;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "filial_id", nullable = false)
-    private Filial filial;
+    @JoinColumn(name = "espaco_id", nullable = false)
+    private Espaco espaco;
+
+    @Column(nullable = false)
+    private LocalDate data;
+
+    @Column(nullable = false)
+    private LocalTime horaInicio;
+
+    @Column(nullable = false)
+    private LocalTime horaFim;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal valorTotal;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Espaco espaco = (Espaco) o;
-        return Objects.equals(id, espaco.id);
+        Reserva reserva = (Reserva) o;
+        return Objects.equals(id, reserva.id);
     }
 
     @Override
